@@ -8,9 +8,10 @@ const FPS = 60;
  * https://codeincomplete.com/articles/javascript-game-foundations-the-game-loop
  *
  */
-export const startLoop = (update: StepFn, render: StepFn) => {
-    let last = 0, acc = 0, delta = 1e3 / FPS, step = 1 / FPS, t = 0;
-    (function loop(now: number) {
+export const createLoop = (update: StepFn, render: StepFn):
+    [start: () => void, stop: () => void] => {
+    let last = 0, acc = 0, delta = 1e3 / FPS, step = 1 / FPS, t = 0, frame: number;
+    const loop = (now: number) => {
         acc += now - last;
         last = now;
         // Sanity check - absorb random lag spike / frame jumps
@@ -23,6 +24,11 @@ export const startLoop = (update: StepFn, render: StepFn) => {
 
         render(t++);
 
-        requestAnimationFrame(loop);
-    })(0);
+        frame = requestAnimationFrame(loop);
+    };
+
+    return [
+        () => loop(0),
+        () => cancelAnimationFrame(frame),
+    ];
 };
