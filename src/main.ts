@@ -1,1 +1,3 @@
-console.log('hello world');
+import { showMainScreen } from "./game/state";
+
+showMainScreen();
