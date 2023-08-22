@@ -42,7 +42,7 @@ let justClicked = false;
 /**
  * Initialize onkey listeners
 */
-export const setupKeyListener = (canvas: HTMLCanvasElement, lockPointer: boolean) => {
+export const setupKeyListener = (canvas: HTMLCanvasElement) => {
     const setKeyState = (value: boolean) => ({ key }: { key: string }) => {
         switch (key) {
             case 'ArrowUp':
@@ -85,13 +85,13 @@ export const setupKeyListener = (canvas: HTMLCanvasElement, lockPointer: boolean
         Keys.ptrRelativeOffsetY = e.movementY / 1e3;
     };
 
-    if (lockPointer) {
-        canvas.onclick = () => {
-            if (!Keys.pointerLocked) {
-                canvas.requestPointerLock();
-            }
-        };
-    }
+    //if (lockPointer) {
+    //    canvas.onclick = () => {
+    //        if (!Keys.pointerLocked) {
+    //            canvas.requestPointerLock();
+    //        }
+    //    };
+    //}
 
     canvas.ontouchstart = canvas.ontouchmove = canvas.ontouchend = canvas.ontouchcancel = e => {
         e.preventDefault();
