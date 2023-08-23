@@ -1,16 +1,17 @@
 import { CameraOrtho } from "../core/cam";
 import { createLoop } from "../core/loop";
 import { clear, createGLContext, resize } from "../core/webgl2-stateless";
-import { CompInit, CompPhysics, CompRender } from "./components";
+import { CompDebug, CompInit, CompPhysics, CompRender } from "./components";
 import { loadLevel } from "./levels";
 import { HUD, levels, pauseScreen, titleScreen, uiBase } from "./screens";
 import './init';
+import { getFrameKeys, setupKeyListener } from "../components/input";
 
 const WIDTH = 400, HEIGHT = 300, S = 40 // scale;
 const canvas = document.getElementById('b') as HTMLCanvasElement;
 //const canv2d = document.getElementById('f') as HTMLCanvasElement;
 //const ctx = create2dContext(canv2d, width, height);
-//setupKeyListener(canvas);
+setupKeyListener(canvas);
 const gl = createGLContext(canvas, WIDTH, HEIGHT);
 onresize = () => {
     // todo: this is repeated
@@ -22,10 +23,18 @@ const cam = CameraOrtho(-WIDTH / S, WIDTH / S, -HEIGHT / S, HEIGHT / S, 1, 100)
     .moveTo(0, 10, .1)
     .lookAt(0, 0, 0);
 
+let dbg = 0;
 const [startLoop, stopLoop] = createLoop(
     (dt) => {
+        const keys = getFrameKeys();
         for (let i = 0; i < CompPhysics.length; i++) {
-            CompPhysics[i](dt);
+            CompPhysics[i](dt, keys, cam);
+        }
+        // todo remove debug
+        if (++dbg % 60 === 0) {
+            for (let i = 0; i < CompDebug.length; i++) {
+                CompDebug[i]();
+            }
         }
     },
     () => {
