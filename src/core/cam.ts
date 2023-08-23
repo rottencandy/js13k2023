@@ -21,8 +21,7 @@ import { clamp } from './math';
 
 export type CamState = {
     /**
-     * Move camera along XYZ
-     * IMPORTANT: x & z are relative to facing direction
+     * Move camera along XY or absY
      */
     move: (x: number, y: number, z: number) => CamState;
     /**
@@ -76,16 +75,15 @@ const Camera = (isOrtho: boolean, ...props: number[]): CamState => {
     const t_target = v3create();
 
     const thisObj: CamState = {
-        move(x, y, z) {
-            if (z) {
-                v3scale(t_move, front, z);
-                // reset y dir, so we always move paralell to the ground
-                // regardless of face direction
-                // t_move[1] = 0;
-                v3add(pos, pos, t_move);
-            }
+        move(x, absY, y) {
             if (y) {
-                v3scale(t_move, UP, y);
+                v3set(t_side, front[0], 0, front[2])
+                v3normalize(t_side, t_side);
+                v3scale(t_side, t_side, y);
+                v3add(pos, pos, t_side);
+            }
+            if (absY) {
+                v3scale(t_move, UP, absY);
                 v3add(pos, pos, t_move);
             }
             if (x) {

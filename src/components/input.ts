@@ -1,17 +1,17 @@
 export type WatchedKeys = {
     esc: boolean,
-    clicked: boolean,
-    justClicked: boolean,
-    ptrX: number,
-    ptrY: number,
+    clk: boolean,
+    justClk: boolean,
+    X: number,
+    Y: number,
 };
 
 const Keys: WatchedKeys = {
     esc: false,
-    clicked: false,
-    justClicked: false,
-    ptrX: 0,
-    ptrY: 0,
+    clk: false,
+    justClk: false,
+    X: 0,
+    Y: 0,
 };
 
 let justClicked = false;
@@ -31,21 +31,21 @@ export const setupKeyListener = (canvas: HTMLCanvasElement) => {
     window.onkeydown = setKeyState(true);
     window.onkeyup = setKeyState(false);
 
-    canvas.onpointerdown = () => (Keys.clicked = justClicked = true);
-    canvas.onpointerup = () => Keys.clicked = false;
+    canvas.onpointerdown = () => (Keys.clk = justClicked = true);
+    canvas.onpointerup = () => Keys.clk = false;
     canvas.onpointermove = e => {
-        Keys.ptrX = e.offsetX / canvas.clientWidth;
-        Keys.ptrY = e.offsetY / canvas.clientHeight;
+        Keys.X = e.offsetX / canvas.clientWidth;
+        Keys.Y = e.offsetY / canvas.clientHeight;
     };
 
     canvas.ontouchstart = canvas.ontouchmove = canvas.ontouchend = canvas.ontouchcancel = e => {
         e.preventDefault();
-        Keys.clicked = justClicked = e.touches.length > 0;
-        if (Keys.clicked) {
+        Keys.clk = justClicked = e.touches.length > 0;
+        if (Keys.clk) {
             const offset = canvas.getBoundingClientRect();
-            Keys.ptrX = (e.touches[0].clientX - offset.left) / canvas.clientWidth;
-            // offset.top is not needed since canvas is always stuck to top
-            Keys.ptrY = e.touches[0].clientY / canvas.clientHeight;
+            Keys.X = (e.touches[0].clientX - offset.left) / canvas.clientWidth;
+            // offset.top is not needed this time since canvas is always stuck to top
+            Keys.Y = e.touches[0].clientY / canvas.clientHeight;
         }
     };
 };
@@ -53,9 +53,9 @@ export const setupKeyListener = (canvas: HTMLCanvasElement) => {
 export const getFrameKeys = () => {
     if (justClicked) {
         justClicked = false;
-        Keys.justClicked = true;
+        Keys.justClk = true;
     } else {
-        Keys.justClicked = false;
+        Keys.justClk = false;
     }
 
     return Keys;

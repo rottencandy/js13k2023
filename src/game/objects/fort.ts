@@ -33,7 +33,7 @@ CompRender.push((gl, mat, eye) => {
     uniform('uPos').u4f(0, 0, 0, 0);
     uniform('uMat').m4fv(mat);
     uniform('uCam').u3f(eye[0], eye[1], eye[2]);
-    uniform('uLightPos').u3f(20, 20, 20);
+    uniform('uLightPos').u3f(1, 5, 1);
     uniform('uColor').u3f(.3, .4, .5);
     draw();
 });
