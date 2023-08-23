@@ -4,8 +4,9 @@ import { clear, createGLContext, resize } from "../core/webgl2-stateless";
 import { CompInit, CompPhysics, CompRender } from "./components";
 import { loadLevel } from "./levels";
 import { HUD, levels, pauseScreen, titleScreen, uiBase } from "./screens";
+import './init';
 
-const WIDTH = 400, HEIGHT = 300;
+const WIDTH = 400, HEIGHT = 300, S = 40 // scale;
 const canvas = document.getElementById('b') as HTMLCanvasElement;
 //const canv2d = document.getElementById('f') as HTMLCanvasElement;
 //const ctx = create2dContext(canv2d, width, height);
@@ -17,8 +18,9 @@ onresize = () => {
     //resize2d(canv2d, width, height);
 };
 
-const cam = CameraOrtho(-WIDTH / 8, WIDTH / 8, -HEIGHT / 8, HEIGHT / 8, 1, 100)
-    .moveTo(0, 2.5, 10);
+const cam = CameraOrtho(-WIDTH / S, WIDTH / S, -HEIGHT / S, HEIGHT / S, 1, 100)
+    .moveTo(0, 10, .1)
+    .lookAt(0, 0, 0);
 
 const [startLoop, stopLoop] = createLoop(
     (dt) => {
@@ -27,9 +29,10 @@ const [startLoop, stopLoop] = createLoop(
         }
     },
     () => {
+        cam.recalculate();
         clear(gl);
         for (let i = 0; i < CompRender.length; i++) {
-            CompRender[i](gl);
+            CompRender[i](gl, cam.matrix, cam.eye);
         }
     },
 );
