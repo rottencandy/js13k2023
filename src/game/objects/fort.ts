@@ -10,10 +10,10 @@ export const enum FortColor {
     Gray,
 };
 
-type Fort = {
+export type Fort = {
     x: number;
     y: number;
-    color: FortColor;
+    col: FortColor;
 };
 
 let forts: Fort[] = [];
@@ -47,7 +47,7 @@ CompRender.push((gl, mat, eye) => {
 
     for (let i = 0; i < forts.length; i++) {
         let f = forts[i];
-        uniform('uPos').u4f(f.x, f.y, 0, 0);
+        uniform('uPos').u4f(f.x, 0, f.y, 0);
         uniform('uColor').u3f(.3, .4, .5);
         draw();
     }

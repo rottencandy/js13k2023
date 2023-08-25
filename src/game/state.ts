@@ -62,7 +62,7 @@ const resumeGame = () => {
 
 const showLevelsScreen = () => {
     uiBase.replaceChildren(...levels(() => {
-        loadLevel();
+        loadLevel(1);
         resumeGame();
     }));
 };
