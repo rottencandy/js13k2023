@@ -6,14 +6,25 @@ import frag from './fort.frag';
 
 let prg: WebGLProgram, vao: WebGLVertexArrayObject, draw: () => void, uniform: any;
 
-let forts = [];
+export const enum FortColor {
+    Gray,
+};
 
-export const setForts = () => {
+type Fort = {
+    x: number;
+    y: number;
+    color: FortColor;
+};
+
+let forts: Fort[] = [];
+
+export const setForts = (f: Fort[]) => {
+    forts = f;
 };
 
 CompInit.push((gl) => {
     prg = shaderProgram(gl, vertex, frag);
-    [ vao, draw ] = mesh(
+    [vao, draw] = mesh(
         gl,
         Fort,
         [
@@ -30,10 +41,14 @@ CompRender.push((gl, mat, eye) => {
     bindVAO(gl, vao);
     useProgram(gl, prg);
 
-    uniform('uPos').u4f(0, 0, 0, 0);
     uniform('uMat').m4fv(mat);
-    uniform('uCam').u3f(eye[0], eye[1], eye[2]);
     uniform('uLightPos').u3f(1, 5, 1);
-    uniform('uColor').u3f(.3, .4, .5);
-    draw();
+    uniform('uCam').u3f(eye[0], eye[1], eye[2]);
+
+    for (let i = 0; i < forts.length; i++) {
+        let f = forts[i];
+        uniform('uPos').u4f(f.x, f.y, 0, 0);
+        uniform('uColor').u3f(.3, .4, .5);
+        draw();
+    }
 });

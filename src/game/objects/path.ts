@@ -6,14 +6,22 @@ import { Plane } from "./vertices";
 
 let prg: WebGLProgram, vao: WebGLVertexArrayObject, draw: () => void, uniform: any;
 
-let paths = [];
+type Path = {
+    x: number;
+    y: number;
+    size: number;
+    angle: number;
+}
 
-export const setPaths = () => {
+let paths: Path[] = [];
+
+export const setPaths = (p: Path[]) => {
+    paths = p;
 };
 
 CompInit.push((gl) => {
     prg = shaderProgram(gl, vertex, frag);
-    [ vao, draw ] = mesh(
+    [vao, draw] = mesh(
         gl,
         Plane,
         // aPos
@@ -26,9 +34,13 @@ CompRender.push((gl, mat) => {
     bindVAO(gl, vao);
     useProgram(gl, prg);
 
-    uniform('uSize').u1f(2);
-    uniform('uPos').u4f(3, 0, 0, 0);
     uniform('uMat').m4fv(mat);
     uniform('uColor').u3f(.5, .4, .4);
-    draw();
+
+    for (let i = 0; i < paths.length; i++) {
+        let p = paths[i];
+        uniform('uPos').u4f(p.x, p.y, 0, 0);
+        uniform('uSize').u1f(p.size);
+        draw();
+    }
 });
