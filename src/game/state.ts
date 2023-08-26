@@ -6,17 +6,19 @@ import { loadLevel } from "./levels";
 import { HUD, levels, pauseScreen, titleScreen, uiBase } from "./screens";
 import './init';
 import { getFrameKeys, setupKeyListener } from "../components/input";
+import { clear2d, create2dContext, resize2d } from "../core/canvas";
 
-const WIDTH = 400, HEIGHT = 300, S = 40 // scale;
+export const WIDTH = 400, HEIGHT = 300;
+const S = 40;
 const canvas = document.getElementById('b') as HTMLCanvasElement;
-//const canv2d = document.getElementById('f') as HTMLCanvasElement;
-//const ctx = create2dContext(canv2d, width, height);
-setupKeyListener(canvas);
+const canv2d = document.getElementById('f') as HTMLCanvasElement;
 const gl = createGLContext(canvas, WIDTH, HEIGHT);
+const ctx = create2dContext(canv2d, WIDTH, HEIGHT);
+setupKeyListener(canvas);
 onresize = () => {
     // todo: this is repeated
     resize(gl, canvas, WIDTH, HEIGHT);
-    //resize2d(canv2d, width, height);
+    resize2d(canv2d, WIDTH, HEIGHT);
 };
 
 const cam = CameraOrtho(-WIDTH / S, WIDTH / S, -HEIGHT / S, HEIGHT / S, 1, 100)
@@ -40,8 +42,9 @@ const [startLoop, stopLoop] = createLoop(
     () => {
         cam.recalculate();
         clear(gl);
+        clear2d(ctx, WIDTH, HEIGHT);
         for (let i = 0; i < CompRender.length; i++) {
-            CompRender[i](gl, cam.matrix, cam.eye);
+            CompRender[i](gl, cam.matrix, cam.eye, ctx);
         }
     },
 );

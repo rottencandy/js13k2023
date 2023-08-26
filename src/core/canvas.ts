@@ -1,6 +1,6 @@
 import { $ } from '../core/ui';
-import { GL, setTextureFilter, setTextureImage, setTextureWrap, texture } from './webgl2-stateless';
-type CTX = CanvasRenderingContext2D;
+
+export type CTX = CanvasRenderingContext2D;
 
 export const create2dContext = (
     canvas: HTMLCanvasElement,

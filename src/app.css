@@ -31,6 +31,7 @@ html, body {
     image-rendering: pixelated;
     image-rendering: crisp-edges;
 }
+#f { pointer-events: none }
 
 /* Note for potrait devices */
 #d {
@@ -66,13 +67,20 @@ html, body {
     flex-direction: column;
     width: 100%;
     height: 100%;
+    pointer-events: none;
 }
+
+/* Needed because events fall through in #ui affects all children */
+#b, #ui * { pointer-events: auto }
 
 h1 {
     color: #ccc;
 }
 
 .btn {
-    background: blue;
+    background: #ccc;
     padding: 20px;
+}
+.btn:hover {
+    background: #ddd;
 }
