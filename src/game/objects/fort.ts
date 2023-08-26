@@ -7,7 +7,8 @@ import frag from './fort.frag';
 import { HEIGHT, WIDTH } from '../state';
 import { transformMat4 } from '../../core/math';
 
-let prg: WebGLProgram, vao: WebGLVertexArrayObject, draw: () => void, uniform: any;
+let prg: WebGLProgram, vao: WebGLVertexArrayObject, draw: () => void;
+let uMat: any, uLightPos: any, uCam: any, uPos: any, uColor: any;
 // transformed vector for 2d drawings
 // todo move to render comp?
 const trVec = v2new();
@@ -41,16 +42,21 @@ CompInit.push((gl) => {
             [1, 3, 24, 12],
         ]
     );
-    uniform = uniformFns(gl, prg);
+    const uniform = uniformFns(gl, prg);
+    uMat = uniform('uMat').m4fv;
+    uLightPos = uniform('uLightPos').u3f;
+    uCam = uniform('uCam').u3f;
+    uPos = uniform('uPos').u4f;
+    uColor = uniform('uColor').u3f;
 });
 
 CompRender.push((gl, mat, eye, ctx) => {
     bindVAO(gl, vao);
     useProgram(gl, prg);
 
-    uniform('uMat').m4fv(mat);
-    uniform('uLightPos').u3f(1, 5, 1);
-    uniform('uCam').u3f(eye[0], eye[1], eye[2]);
+    uMat(mat);
+    uLightPos(1, 5, 1);
+    uCam(eye[0], eye[1], eye[2]);
 
     //ctx.save();
     //ctx.translate(xPos, yPos);
@@ -61,8 +67,8 @@ CompRender.push((gl, mat, eye, ctx) => {
 
     for (let i = 0; i < forts.length; i++) {
         let f = forts[i];
-        uniform('uPos').u4f(f.x, 0, f.y, 0);
-        uniform('uColor').u3f(.3, .4, .5);
+        uPos(f.x, 0, f.y, 0);
+        uColor(.3, .4, .5);
         draw();
 
         transformMat4(trVec, f.x, f.y, mat);

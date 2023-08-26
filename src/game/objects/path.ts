@@ -6,7 +6,9 @@ import { Plane } from "./vertices";
 import { Fort } from "./fort";
 import { v2angle, v2dist } from "../../core/math";
 
-let prg: WebGLProgram, vao: WebGLVertexArrayObject, draw: () => void, uniform: any;
+let prg: WebGLProgram, vao: WebGLVertexArrayObject, draw: () => void;
+
+let uMat: any, uColor: any, uPos: any, uLen: any, uRot: any;
 
 export type Path = {
     x: number;
@@ -37,21 +39,26 @@ CompInit.push((gl) => {
         // aPos
         [[0, 3]]
     );
-    uniform = uniformFns(gl, prg);
+    const uniform = uniformFns(gl, prg);
+    uMat = uniform('uMat').m4fv;
+    uColor = uniform('uColor').u3f;
+    uPos = uniform('uPos').u4f;
+    uLen = uniform('uLen').u1f;
+    uRot = uniform('uRot').u1f;
 });
 
 CompRender.push((gl, mat) => {
     bindVAO(gl, vao);
     useProgram(gl, prg);
 
-    uniform('uMat').m4fv(mat);
-    uniform('uColor').u3f(.5, .4, .4);
+    uMat(mat);
+    uColor(.5, .4, .4);
 
     for (let i = 0; i < paths.length; i++) {
         let p = paths[i];
-        uniform('uPos').u4f(p.x, p.y, 0, 0);
-        uniform('uLen').u1f(p.len);
-        uniform('uRot').u1f(p.rot);
+        uPos(p.x, p.y, 0, 0);
+        uLen(p.len);
+        uRot(p.rot);
         draw();
     }
 });
