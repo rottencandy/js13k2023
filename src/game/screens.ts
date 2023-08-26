@@ -3,8 +3,8 @@ import { $ } from '../core/ui';
 export const uiBase = document.getElementById('ui') as HTMLDivElement;
 
 export const titleScreen = (onStart: () => void) => [
-    $('h1', {}, 'UNTITLED GAME'),
-    $('button', { onclick: onStart }, 'start'),
+    $('h1', {}, 'UNTITLED'),
+    $('button', { className: 'btn', onclick: onStart, autofocus: true }, 'start'),
 ];
 
 export const levels = (onclick: () => void) => [
