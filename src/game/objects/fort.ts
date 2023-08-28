@@ -9,9 +9,6 @@ import { transformMat4 } from '../../core/math';
 
 let prg: WebGLProgram, vao: WebGLVertexArrayObject, draw: () => void;
 let uMat: any, uLightPos: any, uCam: any, uPos: any, uColor: any;
-// transformed vector for 2d drawings
-// todo move to render comp?
-const trVec = v2new();
 
 export const enum FortColor {
     Gray,
@@ -28,6 +25,11 @@ let forts: Fort[] = [];
 
 export const setForts = (f: Fort[]) => {
     forts = f;
+};
+
+export const handleUnitPathEnd = (f: number, uCol: FortColor) => {
+    // todo resolve unit intent & fort status
+    forts[f].u++;
 };
 
 CompInit.push((gl) => {
@@ -50,6 +52,7 @@ CompInit.push((gl) => {
     uColor = uniform('uColor').u3f;
 });
 
+const trVec = v2new();
 CompRender.push((gl, mat, eye, ctx) => {
     bindVAO(gl, vao);
     useProgram(gl, prg);

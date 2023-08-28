@@ -29,10 +29,10 @@ export const AABB = (
 );
 
 export const v2dist = (x1: number, y1: number, x2: number, y2: number) =>
-    Math.hypot(x2 - x1, y2 - y1)
+    Math.hypot(x2 - x1, y2 - y1);
 
 export const v2angle = (x1: number, y1: number, x2: number, y2: number) =>
-    Math.atan2((y2 - y1), (x2 - x1))
+    Math.atan2((y2 - y1), (x2 - x1));
 
 /**
 * Adapted from gl-matrix/vec3/transformMat4 to always assume y as 0
@@ -41,4 +41,4 @@ export const transformMat4 = (out: vec2, x: number, z: number, m: mat4) => {
     out[0] = m[0] * x + m[8] * z + m[12];
     out[1] = m[1] * x + m[9] * z + m[13];
     return out;
-}
+};

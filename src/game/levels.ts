@@ -1,5 +1,6 @@
 import { Fort, setForts } from "./objects/fort";
 import { setPaths } from "./objects/path";
+import { clearUnits } from "./objects/unit";
 
 const LEVELS: [
     forts: Fort[],
@@ -14,6 +15,7 @@ const LEVELS: [
 
 export const loadLevel = (l: number) => {
     const [forts, paths] = LEVELS[l - 1];
+    clearUnits();
     setForts(forts);
     setPaths(paths, forts);
 };
