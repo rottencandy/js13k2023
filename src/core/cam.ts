@@ -74,6 +74,8 @@ const Camera = (isOrtho: boolean, ...props: number[]): CamState => {
     const t_front = v3create();
     const t_target = v3create();
 
+    let dirty = false;
+
     const thisObj: CamState = {
         move(x, absY, y) {
             if (y) {
@@ -92,6 +94,7 @@ const Camera = (isOrtho: boolean, ...props: number[]): CamState => {
                 v3scale(t_move, t_side, x);
                 v3add(pos, pos, t_move);
             }
+            dirty = true;
             return thisObj;
         },
         rotate(ptch, yw) {
@@ -104,21 +107,27 @@ const Camera = (isOrtho: boolean, ...props: number[]): CamState => {
             t_front[1] = Math.sin(pitch);
             t_front[2] = Math.sin(yaw) * cosPitch;
             v3normalize(front, t_front);
+            dirty = true;
             return thisObj;
         },
         moveTo(x, y, z) {
             v3set(pos, x, y, z);
+            dirty = true;
             return thisObj;
         },
         lookAt(x, y, z) {
             v3set(t_front, x, y, z);
             v3sub(t_front, t_front, pos);
             v3normalize(front, t_front);
+            dirty = true;
             return thisObj;
         },
         recalculate() {
-            m4lookAt(viewMat, pos, v3add(t_target, pos, front), UP);
-            m4mul(thisObj.matrix, projectionMat, viewMat);
+            if (dirty) {
+                m4lookAt(viewMat, pos, v3add(t_target, pos, front), UP);
+                m4mul(thisObj.matrix, projectionMat, viewMat);
+                dirty = false;
+            }
             return thisObj;
         },
         matrix: m4clone(projectionMat),

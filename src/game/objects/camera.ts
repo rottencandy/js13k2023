@@ -1,7 +1,7 @@
 import { lerp } from "../../core/interpolation";
 import { CompPhysics } from "../components";
 
-let oldX = 0, oldY = 0, dx = 0, dy = 0;
+let oldX = 0, oldY = 0, dx = 0, dy = 0, PRECISION = 1e-3;
 
 CompPhysics.push((_dt, k, cam) => {
     if (k.clk) {
@@ -10,8 +10,14 @@ CompPhysics.push((_dt, k, cam) => {
     } else {
         dx = lerp(dx, 0, .1);
         dy = lerp(dy, 0, .1);
+
+        if (Math.abs(dx) < PRECISION) dx = 0;
+        if (Math.abs(dy) < PRECISION) dy = 0;
     }
     oldX = k.X;
     oldY = k.Y;
-    cam.move(dx, 0, -dy);
+
+    if (dx || dy) {
+        cam.move(dx, 0, -dy);
+    }
 });
