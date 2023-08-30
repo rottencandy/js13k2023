@@ -1,4 +1,4 @@
-import { Fort, setForts } from "./objects/fort";
+import { Fort, FortColor, setForts } from "./objects/fort";
 import { setPaths } from "./objects/path";
 import { clearUnits } from "./objects/unit";
 
@@ -8,8 +8,8 @@ const LEVELS: [
 ][] = [
         // 1
         [[
-            { x: 0, y: 0, col: 0, u: 5 },
-            { x: 4, y: 4, col: 0, u: 1 }
+            { x: 0, y: 0, col: FortColor.Player, u: 5 },
+            { x: 4, y: 4, col: FortColor.Red, u: 1 }
         ], [{ frm: 0, to: 1 }]]
     ];
 

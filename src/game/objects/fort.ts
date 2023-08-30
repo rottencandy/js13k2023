@@ -1,35 +1,54 @@
 import { create as v2new } from 'gl-matrix/vec2';
 import { bindVAO, mesh, shaderProgram, uniformFns, useProgram } from "../../core/webgl2-stateless";
-import { CompInit, CompRender } from "../components";
+import { CompInit, CompPhysics, CompRender } from "../components";
 import { Fort } from "./vertices";
 import vertex from './fort.vert';
 import frag from './fort.frag';
 import { HEIGHT, WIDTH } from '../state';
-import { transformMat4 } from '../../core/math';
+import { circleCollision, transformMat4 } from '../../core/math';
 
 let prg: WebGLProgram, vao: WebGLVertexArrayObject, draw: () => void;
 let uMat: any, uLightPos: any, uCam: any, uPos: any, uColor: any;
 
 export const enum FortColor {
-    Gray,
+    Player,
+    Red,
+};
+
+export const fortColors = {
+    [FortColor.Player]: { r: .3, g: .4, b: .5 },
+    [FortColor.Red]: { r: .6, g: .3, b: .2 },
 };
 
 export type Fort = {
     x: number;
     y: number;
+
+    // x, y in screen co-ords
+    sx: number;
+    sy: number;
+
     col: FortColor;
+
+    /** units */
     u: number;
 };
 
 let forts: Fort[] = [];
 
-export const setForts = (f: Fort[]) => {
-    forts = f;
+export const setForts = (f: Omit<Fort, 'sx' | 'sy'>[]) => {
+    forts = f.map(x => ({ ...x, sx: 0, sy: 0 }));
 };
 
-export const handleUnitPathEnd = (f: number, uCol: FortColor) => {
-    // todo resolve unit intent & fort status
-    forts[f].u++;
+export const handleUnitPathEnd = (f: number, col: FortColor) => {
+    if (forts[f].col === col) {
+        forts[f].u++;
+    } else {
+        forts[f].u--;
+        if (forts[f].u < 0) {
+            forts[f].col = col;
+        }
+    }
 };
 
 CompInit.push((gl) => {
@@ -61,22 +80,21 @@ CompRender.push((gl, mat, eye, ctx) => {
     uLightPos(1, 5, 1);
     uCam(eye[0], eye[1], eye[2]);
 
-    //ctx.save();
-    //ctx.translate(xPos, yPos);
-    //ctx.restore();
-    ctx.font = '8px sans-serif';
-    ctx.strokeStyle = 'white';
-    ctx.fillStyle = 'white';
-
     for (let i = 0; i < forts.length; i++) {
-        let f = forts[i];
+        const f = forts[i];
         uPos(f.x, 0, f.y, 0);
-        uColor(.3, .4, .5);
+        const col = fortColors[f.col];
+        uColor(col.r, col.g, col.b);
         draw();
 
+        // todo this needs to happen in update component
+        // but cam mat is only available here for now
+        // and I don't want to increase computations for
+        // now by calculating it there
         transformMat4(trVec, f.x, f.y, mat);
-        const xPos = (trVec[0] * .5 + .5) * WIDTH;
-        const yPos = (trVec[1] * -.5 + .5) * HEIGHT;
-        ctx.fillText(`${f.u}`, xPos, yPos);
+        f.sx = (trVec[0] * .5 + .5) * WIDTH;
+        f.sy = (trVec[1] * -.5 + .5) * HEIGHT;
+
+        ctx.fillText(f.u as unknown as string, f.sx, f.sy);
     }
 });

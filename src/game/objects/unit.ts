@@ -2,7 +2,7 @@ import { draw, shaderProgram, uniformFns, useProgram } from "../../core/webgl2-s
 import { CompInit, CompPhysics, CompRender } from "../components";
 import vertex from './unit.vert';
 import frag from './unit.frag';
-import { Fort, handleUnitPathEnd } from "./fort";
+import { Fort, fortColors, handleUnitPathEnd } from "./fort";
 import { GL_POINTS } from "../../core/gl-constants";
 import { lerp } from "../../core/interpolation";
 
@@ -20,12 +20,12 @@ export type Unit = {
     dst: number;
 }
 
-let units: Unit[][] = [[]];
+let units: Unit[][];
 let prg: WebGLProgram, uColor: any, uPos: any, uMat: any;
 const SPEED = 0.7;
 
 export const clearUnits = () => {
-    units = [[]];
+    units = Object.keys(fortColors).map(_ => [] as Unit[]);
 };
 
 export const spawnUnit = (frm: number, to: number, forts: Fort[]) => {
@@ -72,12 +72,13 @@ CompRender.push((gl, mat) => {
 
     for (let c = 0; c < units.length; c++) {
         const unitSet = units[c];
+        const col = fortColors[c];
+        uColor(col.r, col.g, col.b);
         for (let i = 0; i < unitSet.length; i++) {
             const u = unitSet[i];
             const x = lerp(u.xs, u.xd, u.dur);
             const y = lerp(u.ys, u.yd, u.dur);
             uPos(x, .1, y, 1);
-            uColor(1., .4, .4);
             draw(gl, 1, GL_POINTS);
         }
     }

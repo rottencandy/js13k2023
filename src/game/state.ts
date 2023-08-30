@@ -1,7 +1,7 @@
 import { CameraOrtho } from "../core/cam";
 import { createLoop } from "../core/loop";
 import { clear, createGLContext, resize } from "../core/webgl2-stateless";
-import { CompDebug, CompInit, CompPhysics, CompRender } from "./components";
+import { CompInit, CompPhysics, CompRender } from "./components";
 import { loadLevel } from "./levels";
 import { HUD, levels, pauseScreen, titleScreen, uiBase } from "./screens";
 import './init';
@@ -25,24 +25,25 @@ const cam = CameraOrtho(-WIDTH / S, WIDTH / S, -HEIGHT / S, HEIGHT / S, 1, 100)
     .moveTo(0, 10, .1)
     .lookAt(0, 0, 0);
 
-let dbg = 0;
 const [startLoop, stopLoop] = createLoop(
     (dt) => {
         const keys = getFrameKeys();
         for (let i = 0; i < CompPhysics.length; i++) {
             CompPhysics[i](dt, keys, cam);
         }
-        // todo remove debug
-        if (++dbg % 60 === 0) {
-            for (let i = 0; i < CompDebug.length; i++) {
-                CompDebug[i]();
-            }
-        }
     },
     () => {
         cam.recalculate();
         clear(gl);
         clear2d(ctx, WIDTH, HEIGHT);
+
+        //ctx.save();
+        //ctx.translate(xPos, yPos);
+        //ctx.restore();
+        ctx.font = '8px sans-serif';
+        ctx.strokeStyle = 'white';
+        ctx.fillStyle = 'white';
+
         for (let i = 0; i < CompRender.length; i++) {
             CompRender[i](gl, cam.matrix, cam.eye, ctx);
         }
