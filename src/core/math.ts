@@ -29,7 +29,15 @@ export const AABB = (
 );
 
 export const v2dist = (x1: number, y1: number, x2: number, y2: number) =>
-    Math.hypot(x2 - x1, y2 - y1);
+    Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+
+export const circleCollision = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    r: number,
+) => v2dist(x1, y1, x2, y2) - r > 0;
 
 export const v2angle = (x1: number, y1: number, x2: number, y2: number) =>
     Math.atan2((y2 - y1), (x2 - x1));

@@ -71,6 +71,14 @@ CompInit.push((gl) => {
     uColor = uniform('uColor').u3f;
 });
 
+CompPhysics.push((dt, k) => {
+    for (let i = 0; i < forts.length; i++) {
+        const f = forts[i];
+        const inRange = circleCollision(f.sx, f.sy, k.sx, k.sy, 50);
+        f.col = inRange ? FortColor.Player : FortColor.Red;
+    }
+});
+
 const trVec = v2new();
 CompRender.push((gl, mat, eye, ctx) => {
     bindVAO(gl, vao);
