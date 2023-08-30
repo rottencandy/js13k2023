@@ -2,8 +2,14 @@ export type WatchedKeys = {
     esc: boolean,
     clk: boolean,
     justClk: boolean,
+
+    // clip co-cordinates
     X: number,
     Y: number,
+
+    // screen co-cordinates
+    sx: number,
+    sy: number,
 };
 
 const Keys: WatchedKeys = {
@@ -12,6 +18,8 @@ const Keys: WatchedKeys = {
     justClk: false,
     X: 0,
     Y: 0,
+    sx: 0,
+    sy: 0,
 };
 
 let justClicked = false;
@@ -19,7 +27,7 @@ let justClicked = false;
 /**
  * Initialize onkey listeners
 */
-export const setupKeyListener = (canvas: HTMLCanvasElement) => {
+export const setupKeyListener = (canvas: HTMLCanvasElement, width: number, height: number) => {
     const setKeyState = (value: boolean) => ({ key }: { key: string }) => {
         switch (key) {
             case 'Escape':
@@ -36,6 +44,8 @@ export const setupKeyListener = (canvas: HTMLCanvasElement) => {
     canvas.onpointermove = e => {
         Keys.X = e.offsetX / canvas.clientWidth;
         Keys.Y = e.offsetY / canvas.clientHeight;
+        Keys.sx = Keys.X * width;
+        Keys.sy = Keys.Y * height;
     };
 
     canvas.ontouchstart = canvas.ontouchmove = canvas.ontouchend = canvas.ontouchcancel = e => {
@@ -44,8 +54,10 @@ export const setupKeyListener = (canvas: HTMLCanvasElement) => {
         if (Keys.clk) {
             const offset = canvas.getBoundingClientRect();
             Keys.X = (e.touches[0].clientX - offset.left) / canvas.clientWidth;
+            Keys.sx = Keys.X * width;
             // offset.top is not needed this time since canvas is always stuck to top
             Keys.Y = e.touches[0].clientY / canvas.clientHeight;
+            Keys.sy = Keys.Y * height;
         }
     };
 };

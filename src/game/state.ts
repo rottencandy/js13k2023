@@ -14,7 +14,7 @@ const canvas = document.getElementById('b') as HTMLCanvasElement;
 const canv2d = document.getElementById('f') as HTMLCanvasElement;
 const gl = createGLContext(canvas, WIDTH, HEIGHT);
 const ctx = create2dContext(canv2d, WIDTH, HEIGHT);
-setupKeyListener(canvas);
+setupKeyListener(canvas, WIDTH, HEIGHT);
 onresize = () => {
     // todo: this is repeated
     resize(gl, canvas, WIDTH, HEIGHT);
