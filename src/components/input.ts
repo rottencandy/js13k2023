@@ -1,74 +1,132 @@
-export type WatchedKeys = {
+type WatchedKeys = {
+    left: boolean,
+    right: boolean,
+    up: boolean,
+    down: boolean,
+    space: boolean,
+    shift: boolean,
     esc: boolean,
-    clk: boolean,
-    justClk: boolean,
-
-    // clip co-cordinates
-    X: number,
-    Y: number,
-
-    // screen co-cordinates
-    sx: number,
-    sy: number,
+    clicked: boolean,
+    justClicked: boolean,
+    pointerLocked: boolean,
+    ptrX: number,
+    ptrY: number,
+    ptrRelativeOffsetX: number,
+    ptrRelativeOffsetY: number,
 };
 
-const Keys: WatchedKeys = {
+export const Keys: WatchedKeys = {
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+
+    space: false,
+    shift: false,
     esc: false,
-    clk: false,
-    justClk: false,
-    X: 0,
-    Y: 0,
-    sx: 0,
-    sy: 0,
+
+    clicked: false,
+    justClicked: false,
+
+    pointerLocked: false,
+    ptrX: 0,
+    ptrY: 0,
+    ptrRelativeOffsetX: 0,
+    ptrRelativeOffsetY: 0,
 };
+
+export const dirKeysPressed = (k: WatchedKeys): boolean => !!(k.left || k.right || k.up || k.down);
 
 let justClicked = false;
 
 /**
  * Initialize onkey listeners
 */
-export const setupKeyListener = (canvas: HTMLCanvasElement, width: number, height: number) => {
+export const setupKeyListener = (canvas: HTMLCanvasElement, lockPointer: boolean) => {
     const setKeyState = (value: boolean) => ({ key }: { key: string }) => {
         switch (key) {
+            case 'ArrowUp':
+            case 'w':
+            case 'z':
+                Keys.up = value;
+                break;
+            case 'ArrowDown':
+            case 's':
+                Keys.down = value;
+                break;
+            case 'ArrowLeft':
+            case 'a':
+            case 'q':
+                Keys.left = value;
+                break;
+            case 'ArrowRight':
+            case 'd':
+                Keys.right = value;
+                break;
             case 'Escape':
                 Keys.esc = value;
                 break;
+            case ' ':
+                Keys.space = value;
+            case 'Shift':
+                Keys.shift = value;
         }
     }
 
     window.onkeydown = setKeyState(true);
     window.onkeyup = setKeyState(false);
 
-    canvas.onpointerdown = () => (Keys.clk = justClicked = true);
-    canvas.onpointerup = () => Keys.clk = false;
+    canvas.onpointerdown = () => (Keys.clicked = justClicked = true);
+    canvas.onpointerup = () => Keys.clicked = false;
     canvas.onpointermove = e => {
-        Keys.X = e.offsetX / canvas.clientWidth;
-        Keys.Y = e.offsetY / canvas.clientHeight;
-        Keys.sx = Keys.X * width;
-        Keys.sy = Keys.Y * height;
+        Keys.ptrX = e.offsetX / canvas.clientWidth;
+        Keys.ptrY = e.offsetY / canvas.clientHeight;
+        Keys.ptrRelativeOffsetX = e.movementX / 1e3;
+        Keys.ptrRelativeOffsetY = e.movementY / 1e3;
     };
+
+    if (lockPointer) {
+        canvas.onclick = () => {
+            if (!Keys.pointerLocked) {
+                canvas.requestPointerLock();
+            }
+        };
+    }
 
     canvas.ontouchstart = canvas.ontouchmove = canvas.ontouchend = canvas.ontouchcancel = e => {
         e.preventDefault();
-        Keys.clk = justClicked = e.touches.length > 0;
-        if (Keys.clk) {
+        Keys.clicked = justClicked = e.touches.length > 0;
+        if (Keys.clicked) {
             const offset = canvas.getBoundingClientRect();
-            Keys.X = (e.touches[0].clientX - offset.left) / canvas.clientWidth;
-            Keys.sx = Keys.X * width;
-            // offset.top is not needed this time since canvas is always stuck to top
-            Keys.Y = e.touches[0].clientY / canvas.clientHeight;
-            Keys.sy = Keys.Y * height;
+            const ptrX = (e.touches[0].clientX - offset.left) / canvas.clientWidth;
+            // offset.top is not needed since canvas is always stuck to top
+            const ptrY = e.touches[0].clientY / canvas.clientHeight;
+
+            // TODO: Fix relative offset fetching for touch events
+            Keys.ptrRelativeOffsetX = (ptrX - Keys.ptrX) / 1e2;
+            Keys.ptrRelativeOffsetY = (ptrY - Keys.ptrY) / 1e2;
+            Keys.ptrX = ptrX;
+            Keys.ptrY = ptrY;
         }
     };
+
+    document.addEventListener('pointerlockchange', () => {
+        Keys.pointerLocked = document.pointerLockElement === canvas;
+    });
 };
 
-export const getFrameKeys = () => {
+export const CompInput: ((k: WatchedKeys, dt: number) => void)[] = [];
+
+export const CompInputRun = (dt: number) => {
+    for (let i = 0; i < CompInput.length; i++) {
+        CompInput[i](Keys, dt);
+    }
+    Keys.ptrRelativeOffsetX = 0;
+    Keys.ptrRelativeOffsetY = 0;
     if (justClicked) {
         justClicked = false;
-        Keys.justClk = true;
+        Keys.justClicked = true;
     } else {
-        Keys.justClk = false;
+        Keys.justClicked = false;
     }
-
-    return Keys;
 };
